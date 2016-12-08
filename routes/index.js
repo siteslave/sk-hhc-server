@@ -9,13 +9,16 @@ router.get('/', function(req, res, next) {
   res.send({ ok: true, msg: 'Welcome' });
 });
 
-router.get('/services', function (req, res, next) {
-  console.log('service route')
-  Service.getService(req.hosPool)
+router.post('/services', function (req, res, next) {
+  let vstdate = req.body.vstdate; // $_POST['vstdate']
+
+  Service.getService(req.hosPool, vstdate)
     .then((rows) => {
       let services = [];
       rows.forEach(v => {
         let obj = {};
+        obj.hn = v.hn;
+        obj.vn = v.vn;
         obj.vstdate = `${moment(v.vstdate).format('D')} ${moment(v.vstdate).locale('th').format('MMMM')} ${moment(v.vstdate).get('year') + 543}`;
         obj.vsttime = v.vsttime;
         obj.ptname = v.ptname;

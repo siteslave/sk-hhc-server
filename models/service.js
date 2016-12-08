@@ -1,16 +1,16 @@
 let Q = require('q');
 
 module.exports = {
-  getService(db) {
+  getService(db, vstdate) {
     let q = Q.defer();
 
     let sql = `
-    select o.vstdate, o.vsttime, 
+    select o.hn, o.vn, o.vstdate, o.vsttime, 
     concat(p.pname, p.fname, " ", p.lname) as ptname, 
     p.sex 
     from ovst as o
     inner join person as p on p.patient_hn=o.hn
-    where o.vstdate="2016-01-01"
+    where o.vstdate=?
     limit 10
     `;
 
@@ -18,7 +18,7 @@ module.exports = {
       if (err) {
         q.reject(err);
       } else {
-        conn.query(sql, [], (err, rows) => {
+        conn.query(sql, [vstdate], (err, rows) => {
           if (err) q.reject(err);
           else q.resolve(rows);
         });

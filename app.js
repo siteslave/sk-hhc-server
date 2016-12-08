@@ -1,6 +1,7 @@
 //===================================
 require('dotenv').config();
 var mysql = require('mysql');
+var cors = require('cors');
 //===================================
 var express = require('express');
 var path = require('path');
@@ -25,6 +26,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(cors());
 
 let hosPool = mysql.createPool({
   host: process.env.HOST,
