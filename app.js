@@ -1,3 +1,7 @@
+//===================================
+require('dotenv').config();
+var mysql = require('mysql');
+//===================================
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -21,6 +25,30 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+let hosPool = mysql.createPool({
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DB,
+  port: process.env.DBPORT
+});
+
+let hdcPool = mysql.createPool({
+  host: process.env.HDC_HOST,
+  user: process.env.HDC_USER,
+  password: process.env.HDC_PASSWORD,
+  database: process.env.HDC_DB,
+  port: process.env.HDC_PORT
+});
+
+hosPool.on('connection', (connection) => {
+  connection.query('SET NAMES utf8')
+});
+
+hdcPool.on('connection', (connection) => {
+  connection.query('SET NAMES utf8')
+});
 
 app.use('/', index);
 app.use('/users', users);
