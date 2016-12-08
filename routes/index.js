@@ -31,4 +31,22 @@ router.post('/services', function (req, res, next) {
     });
 });
 
+router.post('/comlist', function (req, res, next) {
+  Service.getCommunityServiceList(req.hosPool)
+    .then((rows) => {
+      res.send({ ok: true, rows: rows });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
+router.post('/doctorlist', function (req, res, next) {
+  Service.getDoctorList(req.hosPool)
+    .then((rows) => {
+      res.send({ ok: true, rows: rows });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
 module.exports = router;
