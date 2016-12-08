@@ -50,6 +50,10 @@ hdcPool.on('connection', (connection) => {
   connection.query('SET NAMES utf8')
 });
 
+app.use((req, res, next) => {
+  req.hosPool = hosPool;
+});
+
 app.use('/', index);
 app.use('/users', users);
 
