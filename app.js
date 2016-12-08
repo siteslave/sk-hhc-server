@@ -52,6 +52,7 @@ hdcPool.on('connection', (connection) => {
 
 app.use((req, res, next) => {
   req.hosPool = hosPool;
+  next();
 });
 
 app.use('/', index);
@@ -73,6 +74,7 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+  // console.log(err);
 });
 
 module.exports = app;

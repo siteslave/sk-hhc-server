@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
 
 var Service = require('../models/service');
 
@@ -8,10 +9,20 @@ router.get('/', function(req, res, next) {
   res.send({ ok: true, msg: 'Welcome' });
 });
 
-router.get('/services', function(req, res, next) {
+router.get('/services', function (req, res, next) {
+  console.log('service route')
   Service.getService(req.hosPool)
     .then((rows) => {
-      res.send({ ok: true, rows: rows });
+      let services = [];
+      rows.forEach(v => {
+        let obj = {};
+        obj.vstdate = `${moment(v.vstdate).format('D')} ${moment(v.vstdate).locale('th').format('MMMM')} ${moment(v.vstdate).get('year') + 543}`;
+        obj.vsttime = v.vsttime;
+        obj.ptname = v.ptname;
+        obj.sex = v.sex;
+        services.push(obj);
+      });
+      res.send({ ok: true, rows: services });
     }, (err) => {
       res.send({ ok: false, error: err });
     });
