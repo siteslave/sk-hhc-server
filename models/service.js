@@ -198,5 +198,68 @@ order by ovst_community_service_type_name`;
     });
 
     return q.promise;
+  },
+
+  saveDeviceToken(db, username, deviceToken) {
+    let q = Q.defer();
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        let sql = `INSERT INTO sk_hhc_device_token(username, device_token) VALUE(?, ?)`;
+        conn.query(sql, [username, deviceToken], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve(rows);
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  getDeviceToken(db, username) {
+    let q = Q.defer();
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        let sql = `SELECT device_token FROM sk_hhc_device_token WHERE username=?`;
+        conn.query(sql, [username], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve(rows);
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  getUsers(db) {
+    let q = Q.defer();
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        let sql = `SELECT username FROM sk_hhc_device_token group by username`;
+        conn.query(sql, [], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve(rows);
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
   }
 }

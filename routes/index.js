@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
+var gcm = require('node-gcm');
 
 var Service = require('../models/service');
 
@@ -49,8 +50,67 @@ router.post('/services', function (req, res, next) {
     });
 });
 
+router.post('/register-device', function (req, res, next) {
+  let deviceToken = req.body.deviceToken;
+  let username = req.body.username;
+
+  Service.saveDeviceToken(req.hosPool, username, deviceToken)
+    .then(() => {
+      res.send({ ok: true });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
+router.post('/send-alert', function (req, res, next) {
+  let username = req.body.username;
+  let msg = req.body.msg;
+
+  Service.getDeviceToken(req.hosPool, username)
+    .then((rows) => {
+      let tokens = [];
+      rows.forEach(v => {
+        tokens.push(v.device_token);
+      });
+
+      var message = new gcm.Message();
+      message.addData('title', 'ข่าว');
+      message.addData('message', msg);
+      message.addData('content-available', true);
+      message.addData('chat', { "username": "Satit", "message": "Hello world" });
+      // message.addData('notId', 2);
+      // message.addData('image', 'http://res.cloudinary.com/demo/image/upload/w_133,h_133,c_thumb,g_face/bike.jpg');
+      message.addData('image', 'http://www.pro.moph.go.th/w54/images/ICT/loadlogomoph.png');
+      
+      // Set up the sender with you API key, prepare your recipients' registration tokens. 
+      var sender = new gcm.Sender('AAAAHaGNsA0:APA91bHxmpyw06spVJLL90Zms_vnPKykweTvgcRllxPG22BJuWiiwBTHI4qPQ8I480eMpehd_gJn6sk4eaDSnmfohbr5oCZQG-RBaKRcRTqYJIEKvcLm0egv9SxCC0fJnqXApa8TAy0nefi6Buax-LxDxwckLsVoeA');
+      
+      sender.send(message, { registrationTokens: tokens }, function (err, response) {
+        if (err) {
+          console.log(err);
+          res.send({ ok: false, error: err });
+        } else {
+          console.log(response);
+          res.send({ ok: true });
+        }
+      });
+      
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
 router.post('/comlist', function (req, res, next) {
   Service.getCommunityServiceList(req.hosPool)
+    .then((rows) => {
+      res.send({ ok: true, rows: rows });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
+router.post('/users-list', function (req, res, next) {
+  Service.getUsers(req.hosPool)
     .then((rows) => {
       res.send({ ok: true, rows: rows });
     }, (err) => {
