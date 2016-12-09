@@ -92,5 +92,92 @@ order by ovst_community_service_type_name`;
     });
 
     return q.promise;
+  },
+
+  updateImage(db, vn, image) {
+    let q = Q.defer();
+
+    let sql = `update sk_hhc_image set image=? where vn=?`;
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(sql, [image, vn], (err) => {
+          if (err) q.reject(err);
+          else q.resolve();
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  checkImage(db, vn) {
+    let q = Q.defer();
+
+    let sql = `select count(*) as total from sk_hhc_image where vn=?`;
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(sql, [vn], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve(rows[0].total);
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  getImage(db, vn) {
+    let q = Q.defer();
+
+    let sql = `select image from sk_hhc_image where vn=?`;
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(sql, [vn], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            let image = rows.length ? rows[0].image : null;
+            q.resolve(image);
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  removeImage(db, vn) {
+    let q = Q.defer();
+
+    let sql = `delete from sk_hhc_image where vn=?`;
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(sql, [vn], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve();
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
   }
 }

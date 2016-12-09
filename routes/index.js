@@ -49,12 +49,43 @@ router.post('/doctorlist', function (req, res, next) {
     });
 });
 
+router.post('/getimage', function (req, res, next) {
+  let vn = req.body.vn;
+
+  Service.getImage(req.hosPool, vn)
+    .then((image) => {
+      if (image) {
+        res.send({ ok: true, rows: image.toString() });
+      } else {
+        res.send({ ok: false });
+      }
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
+router.post('/remove-image', function (req, res, next) {
+  let vn = req.body.vn;
+
+  Service.removeImage(req.hosPool, vn)
+    .then((image) => {
+      res.send({ ok: true });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
 router.post('/save', function (req, res, next) {
   let vn = req.body.vn;
   let image = req.body.image;
 
-  Service.saveImage(req.hosPool, vn, image)
-    .then((rows) => {
+  // check duplicated
+  Service.checkImage(req.hosPool, vn)
+    .then((total) => {
+      if (total) return Service.updateImage(req.hosPool, vn, image);
+      else return Service.saveImage(req.hosPool, vn, image);
+    })
+    .then(() => {
       res.send({ ok: true });
     }, (err) => {
       res.send({ ok: false, error: err });
