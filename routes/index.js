@@ -49,4 +49,16 @@ router.post('/doctorlist', function (req, res, next) {
     });
 });
 
+router.post('/save', function (req, res, next) {
+  let vn = req.body.vn;
+  let image = req.body.image;
+
+  Service.saveImage(req.hosPool, vn, image)
+    .then((rows) => {
+      res.send({ ok: true });
+    }, (err) => {
+      res.send({ ok: false, error: err });
+    });
+});
+
 module.exports = router;

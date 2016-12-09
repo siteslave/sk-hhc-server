@@ -72,5 +72,25 @@ order by ovst_community_service_type_name`;
     });
 
     return q.promise;
+  },
+
+  saveImage(db, vn, image) {
+    let q = Q.defer();
+
+    let sql = `insert into sk_hhc_image(vn, image) values(?, ?)`;
+
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(sql, [vn, image], (err) => {
+          if (err) q.reject(err);
+          else q.resolve();
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
   }
 }
