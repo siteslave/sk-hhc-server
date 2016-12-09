@@ -8,6 +8,24 @@ var Service = require('../models/service');
 router.get('/', function(req, res, next) {
   res.send({ ok: true, msg: 'Welcome' });
 });
+router.get('/test', function(req, res, next) {
+
+    req.hosPool.getConnection((err, conn) => {
+      if (err) {
+        res.send({err: err})
+      } else {
+        conn.query(process.env.SQL_SELECT, ['1334NAT'], (err, rows) => {
+          if (err) { 
+            res.send({ok: false, err: err})
+          } else {
+            res.send({ok: true, rows: rows})
+          }
+        });
+        conn.release();
+      }
+    });
+
+});
 
 router.post('/services', function (req, res, next) {
   let vstdate = req.body.vstdate; // $_POST['vstdate']

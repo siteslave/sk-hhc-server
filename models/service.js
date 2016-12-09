@@ -162,16 +162,35 @@ order by ovst_community_service_type_name`;
   removeImage(db, vn) {
     let q = Q.defer();
 
-    let sql = `delete from sk_hhc_image where vn=?`;
+    db.getConnection((err, conn) => {
+      if (err) {
+        q.reject(err);
+      } else {
+        conn.query(process.env.SQL_DELETE_IMAGE, [vn], (err, rows) => {
+          if (err) q.reject(err);
+          else {
+            q.resolve();
+          }
+        });
+        conn.release();
+      }
+    });
+
+    return q.promise;
+  },
+
+  login(db, username, password) {
+    let q = Q.defer();
 
     db.getConnection((err, conn) => {
       if (err) {
         q.reject(err);
       } else {
-        conn.query(sql, [vn], (err, rows) => {
+        let sql = `SELECT * FROM opduser WHERE loginname=? AND passweb=?`;
+        conn.query(sql, [username, password], (err, rows) => {
           if (err) q.reject(err);
           else {
-            q.resolve();
+            q.resolve(rows);
           }
         });
         conn.release();

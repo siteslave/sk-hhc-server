@@ -2,6 +2,7 @@
 require('dotenv').config();
 var mysql = require('mysql');
 var cors = require('cors');
+var jwt = require('./models/jwt');
 //===================================
 var express = require('express');
 var path = require('path');
@@ -29,6 +30,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors());
 
+let authToken = (req, res, next) => {
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  // console.log(token);
+  jwt.verify(token)
+    .then((decoded) => {
+      req.decoded = decoded;
+      next();
+    }, err => {
+      return res.status(403).send({
+        ok: false,
+        msg: 'No token provided.'
+      });
+    });
+}
+
 let hosPool = mysql.createPool({
   host: process.env.HOST,
   user: process.env.USER,
@@ -55,11 +71,12 @@ hdcPool.on('connection', (connection) => {
 
 app.use((req, res, next) => {
   req.hosPool = hosPool;
+  req.hdcPool = hdcPool;
   next();
 });
 
-app.use('/', index);
 app.use('/users', users);
+app.use('/', authToken, index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
